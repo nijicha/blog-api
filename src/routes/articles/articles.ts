@@ -1,5 +1,7 @@
 import { Router, type Request, type Response } from 'express'
-import type { Article } from '../models/article'
+import { validationResult, type Result, type ValidationError } from 'express-validator'
+import articlesValidator from './articles.validator'
+import type { Article } from './types'
 
 const router = Router()
 const articles: Article[] = []
@@ -22,7 +24,13 @@ router.get('/:id', (req: Request, res: Response) => {
 })
 
 // Create
-router.post('/', (req: Request, res: Response) => {
+router.post('/', articlesValidator, (req: Request, res: Response) => {
+  const errors: Result<ValidationError> = validationResult(req)
+
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() })
+  }
+
   const article: Article = {
     id: articles.length + 1,
     title: req.body.title,
@@ -34,7 +42,13 @@ router.post('/', (req: Request, res: Response) => {
 })
 
 // Update
-router.put('/:id', (req: Request, res: Response) => {
+router.put('/:id', articlesValidator, (req: Request, res: Response) => {
+  const errors = validationResult(req)
+
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() })
+  }
+
   const paramsId = parseInt(req.params.id, 10)
   const index = articles.findIndex((a) => a.id === paramsId)
 
