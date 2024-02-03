@@ -1,12 +1,15 @@
 import express, { type Express, type Request, type Response } from 'express'
+import cors from 'cors'
 import 'dotenv/config'
 
+import CONFIG from './config'
 import articleRoutes from './routes/articles/articles'
 
 const ENV: NodeJS.ProcessEnv = process.env
 const app: Express = express()
 const port = ENV?.PORT || '3000'
 
+app.use(cors(CONFIG.CORS.setting))
 app.use(express.json())
 app.use('/articles', articleRoutes)
 
