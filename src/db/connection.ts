@@ -14,6 +14,8 @@ export default class DatabaseConnection {
     try {
       db = await this.connection.connect()
       await childFn(db)
+    } catch (error: unknown) {
+      console.error(error)
     } finally {
       if (db) {
         await this.connection.disconnect()
