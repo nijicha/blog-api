@@ -10,14 +10,16 @@ import type { DeleteResult, InsertOneResult, UpdateResult, WithId } from 'mongod
 import type { Article } from '@/app/models/article'
 import ArticleService from '@/app/services/article-service'
 
-// TODO: Change this file structure to class or module. This cannot be tested.
-
 const router: Router = Router()
 const VALIDATION: ValidationChain[] = [
   body('title').notEmpty().withMessage('Title is required'),
   body('content').notEmpty().withMessage('Content is required')
 ]
 const articleService = ArticleService()
+
+function safeParam(value: string) {
+  return value.trim().replace(/[^a-zA-Z0-9]/g, '')
+}
 
 // Index
 router.get('/', async (_req: Request, res: Response) => {
@@ -27,7 +29,7 @@ router.get('/', async (_req: Request, res: Response) => {
 
 // Show
 router.get('/:id', async (req: Request, res: Response) => {
-  const article: WithId<Article> | null = await articleService.find(req.params.id)
+  const article: WithId<Article> | null = await articleService.find(safeParam(req.params.id))
 
   if (article) {
     res.json(article)
@@ -41,7 +43,7 @@ router.post('/', VALIDATION, async (req: Request, res: Response) => {
   const errors: Result<ValidationError> = validationResult(req)
 
   if (!errors.isEmpty()) {
-    res.status(400).json({ errors: errors.array() })
+    return res.status(400).json({ errors: errors.array() })
   }
 
   const article: Article = {
@@ -66,7 +68,10 @@ router.put('/:id', VALIDATION, async (req: Request, res: Response) => {
     return res.status(400).json({ errors: errors.array() })
   }
 
-  const result: UpdateResult<Article> = await articleService.update(req.params.id, req.body)
+  const result: UpdateResult<Article> = await articleService.update(
+    safeParam(req.params.id),
+    req.body
+  )
 
   if (result.acknowledged) {
     res.json(result)
@@ -77,7 +82,7 @@ router.put('/:id', VALIDATION, async (req: Request, res: Response) => {
 
 // // Delete
 router.delete('/:id', async (req: Request, res: Response) => {
-  const result: DeleteResult = await articleService.delete(req.params.id)
+  const result: DeleteResult = await articleService.delete(safeParam(req.params.id))
 
   if (result.acknowledged) {
     res.json(result)

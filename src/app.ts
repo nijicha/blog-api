@@ -37,13 +37,14 @@ app.get('/', (_req: Request, res: Response) => {
 })
 
 // Handle middleware errors
-app.use((err: Error, _req: Request, res: Response) => {
-  if (ENV?.NODE_ENV === 'development') {
-    console.error(err)
-  }
-
-  res.status(500).json({ message: 'Internal server error' })
-})
+// app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+//   if (ENV?.NODE_ENV === 'development') {
+//     console.error(err.stack)
+//   }
+//
+//   res.status(500).send('Something went wrong')
+//   next()
+// })
 
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`)
