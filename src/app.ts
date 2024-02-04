@@ -1,6 +1,7 @@
 import express, { type Express, type Request, type Response } from 'express'
 import cors from 'cors'
 import 'dotenv/config'
+import 'module-alias/register'
 
 import CONFIG from './config'
 import articlesRoute from './routes/articles.route'
