@@ -1,4 +1,4 @@
-# SS&C Test Assignment
+# Blog API
 
 ## Prerequisites
 
