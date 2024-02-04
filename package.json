@@ -1,5 +1,6 @@
 {
-  "name": "ssc-blog",
+  "name": "blog-api",
+  "description": "A simple blog API using Express and MongoDB",
   "version": "1.0.0",
   "license": "MIT",
   "_moduleAliases": {
