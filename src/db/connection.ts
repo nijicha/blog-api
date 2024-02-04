@@ -1,28 +1,15 @@
-import { MongoClient, type Db } from 'mongodb'
+import MongoDbAdapter from '@/db/adapters/mongodb-adapter'
 
 export default class DatabaseConnection {
-  private readonly url: string
-  private client: MongoClient
+  private connection: MongoDbAdapter
 
   constructor() {
-    this.url = process.env.MONGODB_URI || ''
-    this.client = new MongoClient(this.url)
+    this.connection = new MongoDbAdapter()
   }
 
-  public async connect(): Promise<Db> {
-    try {
-      await this.client.connect()
-      return this.client.db(process.env.DATABASE_NAME)
-    } catch (error) {
-      throw new Error(`Error connecting to the database: ${error}`)
-    }
-  }
-
-  public async disconnect(): Promise<void> {
-    try {
-      await this.client.close()
-    } catch (error) {
-      throw new Error(`Error disconnecting from the database: ${error}`)
-    }
+  public async run(childFn: () => unknown): Promise<void> {
+    await this.connection.connect()
+    await childFn()
+    await this.connection.disconnect()
   }
 }
