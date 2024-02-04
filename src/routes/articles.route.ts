@@ -8,7 +8,9 @@ import {
 } from 'express-validator'
 import type { Article } from '@/app/models/article'
 
-const router = Router()
+// TODO: Change this file structure to class or module. This cannot be tested.
+
+const router: Router = Router()
 const articlesValidator: ValidationChain[] = [
   body('title').notEmpty().withMessage('Title is required'),
   body('content').notEmpty().withMessage('Content is required')
@@ -17,7 +19,7 @@ const articlesValidator: ValidationChain[] = [
 const articles: Article[] = []
 
 // Index
-router.get('/', (req: Request, res: Response) => {
+router.get('/', (_req: Request, res: Response) => {
   res.json(articles)
 })
 

@@ -3,7 +3,7 @@ import cors from 'cors'
 import 'dotenv/config'
 
 import CONFIG from './config'
-import articleRoutes from './routes/articles/articles'
+import articlesRoute from './routes/articles.route'
 
 const ENV: NodeJS.ProcessEnv = process.env
 const app: Express = express()
@@ -11,7 +11,21 @@ const port = ENV?.PORT || '3000'
 
 app.use(cors(CONFIG.CORS.setting))
 app.use(express.json())
-app.use('/articles', articleRoutes)
+
+app.use('/articles', articlesRoute)
+
+// FIXME: This is not working
+// Dynamically import route files
+
+// const routesDir = join(__dirname, 'routes')
+// readdirSync(routesDir).forEach((filename: string) => {
+//   if (filename.endsWith('.route.ts')) {
+//     import(join(routesDir, filename)).then(({ default: route }: { default: Router }) => {
+//       const routePath = `/${filename.replace(/.route\.ts$/, '')}`
+//       app.use(routePath, route)
+//     })
+//   }
+// })
 
 app.get('/', (_req: Request, res: Response) => {
   res.send('Simple Blog API')
