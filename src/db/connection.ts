@@ -1,4 +1,5 @@
 import MongoDbAdapter from '@/db/adapters/mongodb-adapter'
+import type { Db } from 'mongodb'
 
 export default class DatabaseConnection {
   private connection: MongoDbAdapter
@@ -7,9 +8,16 @@ export default class DatabaseConnection {
     this.connection = new MongoDbAdapter()
   }
 
-  public async run(childFn: () => unknown): Promise<void> {
-    await this.connection.connect()
-    await childFn()
-    await this.connection.disconnect()
+  public async run(childFn: (db: Db) => unknown): Promise<void> {
+    let db: Db | undefined = undefined
+
+    try {
+      db = await this.connection.connect()
+      await childFn(db)
+    } finally {
+      if (db) {
+        await this.connection.disconnect()
+      }
+    }
   }
 }
