@@ -20,10 +20,14 @@ app.use('/articles', articlesRoute)
 // const routesDir = join(__dirname, 'routes')
 // readdirSync(routesDir).forEach((filename: string) => {
 //   if (filename.endsWith('.route.ts')) {
-//     import(join(routesDir, filename)).then(({ default: route }: { default: Router }) => {
-//       const routePath = `/${filename.replace(/.route\.ts$/, '')}`
-//       app.use(routePath, route)
-//     })
+//     import(join(routesDir, filename))
+//       .then(({ default: route }: { default: Router }) => {
+//         const routePath = `/${filename.replace(/\.ts$/, '')}`
+//         app.use(routePath, route)
+//       })
+//       .catch((error) => {
+//         console.error(`Error loading route from ${filename}:`, error)
+//       })
 //   }
 // })
 
