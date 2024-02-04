@@ -4,8 +4,8 @@ export default class MongoDbAdapter {
   private readonly url: string
   private client: MongoClient
 
-  constructor() {
-    this.url = process.env.MONGODB_URI || ''
+  constructor(url?: string) {
+    this.url = url || process.env.MONGODB_URI || ''
     this.client = new MongoClient(this.url)
   }
 
