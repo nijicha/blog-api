@@ -1,9 +1,19 @@
 import { Router, type Request, type Response } from 'express'
-import { validationResult, type Result, type ValidationError } from 'express-validator'
-import articlesValidator from './articles.validator'
-import type { Article } from './types'
+import {
+  body,
+  validationResult,
+  type Result,
+  type ValidationError,
+  type ValidationChain
+} from 'express-validator'
+import type { Article } from '@/app/models/article'
 
 const router = Router()
+const articlesValidator: ValidationChain[] = [
+  body('title').notEmpty().withMessage('Title is required'),
+  body('content').notEmpty().withMessage('Content is required')
+]
+
 const articles: Article[] = []
 
 // Index
