@@ -133,3 +133,6 @@ dist
 
 # Jetbrains
 .idea
+
+# Mac
+.DS_*

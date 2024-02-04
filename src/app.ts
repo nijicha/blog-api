@@ -22,7 +22,7 @@ readdirSync(routesDir).forEach(async (filename: string) => {
 
   try {
     const item = await import(route)
-    const routeNamespace = `/${filename.replace(/\.route.ts$/, '')}`
+    const routeNamespace = `/${filename.replace(/\.(route\.ts|route\.js)$/, '')}`
 
     app.use(routeNamespace, item.default)
   } catch (error) {
