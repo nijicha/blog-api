@@ -6,7 +6,7 @@ import {
   type ValidationError,
   type ValidationChain
 } from 'express-validator'
-import type { WithId } from 'mongodb'
+import type { DeleteResult, InsertOneResult, UpdateResult, WithId } from 'mongodb'
 import type { Article } from '@/app/models/article'
 import ArticleService from '@/app/services/article-service'
 
@@ -17,33 +17,31 @@ const VALIDATION: ValidationChain[] = [
   body('title').notEmpty().withMessage('Title is required'),
   body('content').notEmpty().withMessage('Content is required')
 ]
-let articles: WithId<Article>[] = []
+const articleService = ArticleService()
 
 // Index
 router.get('/', async (_req: Request, res: Response) => {
-  const articleService = await ArticleService()
-  articles = await articleService.list()
+  const articles: WithId<Article>[] = await articleService.list()
   res.json(articles)
 })
 
-// // Show
-// router.get('/:id', (req: Request, res: Response) => {
-//   const paramsId = parseInt(req.params.id, 10)
-//   const article = articles.find((a) => a.id === paramsId)
-//
-//   if (article) {
-//     res.json(article)
-//   } else {
-//     res.status(404).json({ message: 'Article not found' })
-//   }
-// })
-//
+// Show
+router.get('/:id', async (req: Request, res: Response) => {
+  const article: WithId<Article> | null = await articleService.find(req.params.id)
+
+  if (article) {
+    res.json(article)
+  } else {
+    res.status(404).json({ message: 'Article not found' })
+  }
+})
+
 // Create
 router.post('/', VALIDATION, async (req: Request, res: Response) => {
   const errors: Result<ValidationError> = validationResult(req)
 
   if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() })
+    res.status(400).json({ errors: errors.array() })
   }
 
   const article: Article = {
@@ -51,45 +49,41 @@ router.post('/', VALIDATION, async (req: Request, res: Response) => {
     content: req.body.content
   }
 
-  const articleService = await ArticleService()
-  const insertOneResult = await articleService.create(article)
-  res.status(201).json(insertOneResult)
+  const result: InsertOneResult<Article> = await articleService.create(article)
+
+  if (result.acknowledged) {
+    res.status(201).json(result)
+  } else {
+    res.status(500).json({ message: 'Failed to create article' })
+  }
 })
 
-// // Update
-// router.put('/:id', VALIDATION, (req: Request, res: Response) => {
-//   const errors = validationResult(req)
-//
-//   if (!errors.isEmpty()) {
-//     return res.status(400).json({ errors: errors.array() })
-//   }
-//
-//   const paramsId = parseInt(req.params.id, 10)
-//   const index = articles.findIndex((a) => a.id === paramsId)
-//
-//   if (index !== -1) {
-//     articles[index] = {
-//       id: paramsId,
-//       title: req.body.title,
-//       content: req.body.content
-//     }
-//     res.json(articles[index])
-//   } else {
-//     res.status(404).json({ message: 'Article not found' })
-//   }
-// })
-//
+// Update
+router.put('/:id', VALIDATION, async (req: Request, res: Response) => {
+  const errors: Result<ValidationError> = validationResult(req)
+
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() })
+  }
+
+  const result: UpdateResult<Article> = await articleService.update(req.params.id, req.body)
+
+  if (result.acknowledged) {
+    res.json(result)
+  } else {
+    res.status(500).json({ message: 'Failed to update article' })
+  }
+})
+
 // // Delete
-// router.delete('/:id', (req: Request, res: Response) => {
-//   const paramsId = parseInt(req.params.id, 10)
-//   const index = articles.findIndex((a) => a.id === paramsId)
-//
-//   if (index !== -1) {
-//     articles.splice(index, 1)
-//     res.status(204).end()
-//   } else {
-//     res.status(404).json({ message: 'Article not found' })
-//   }
-// })
+router.delete('/:id', async (req: Request, res: Response) => {
+  const result: DeleteResult = await articleService.delete(req.params.id)
+
+  if (result.acknowledged) {
+    res.json(result)
+  } else {
+    res.status(500).json({ message: 'Failed to delete article' })
+  }
+})
 
 export default router
