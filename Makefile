@@ -1,9 +1,10 @@
-.PHONY: dev
+.PHONY: setup
 
-dev:
+setup:
 	make prerequisites
 	make install-dependencies
-	pnpm run dev
+	make prepare-file
+	@echo "Ready to go! 🎉"
 
 prerequisites:
 	@echo "Checking prerequisites"
@@ -13,4 +14,8 @@ prerequisites:
 install-dependencies:
 	@echo "Installing dependencies"
 	pnpm install
+
+prepare-file:
+	@echo "Preparing file"
+	@cp .env.sample ./.env
 
